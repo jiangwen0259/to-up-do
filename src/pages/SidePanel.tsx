@@ -76,7 +76,7 @@ export default function SidePanel() {
   async function handleAiBreakdown(title: string, description: string): Promise<string[]> {
     if (!state.settings.ai.enabled) return [];
     try {
-      return await aiBreakdownTask(state.settings.ai, title, description);
+      return await aiBreakdownTask(title, description);
     } catch {
       return [];
     }

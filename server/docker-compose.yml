@@ -1,0 +1,11 @@
+services:
+  to-up-do-server:
+    build: .
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config.json:/app/config.json
+    environment:
+      - LOG_FORMAT=text
+      - LOG_LEVEL=INFO
+    restart: unless-stopped

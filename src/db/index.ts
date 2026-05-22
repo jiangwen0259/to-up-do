@@ -24,13 +24,12 @@ export async function getSettings(): Promise<AppSettings> {
     map[row.key] = row.value;
   }
   return {
-    ai: { ...DEFAULT_SETTINGS.ai, ...(map.ai as Partial<AiConfig> | undefined) },
-    tapd: { ...DEFAULT_SETTINGS.tapd, ...(map.tapd as Partial<TapdConfig> | undefined) },
-    reminder: { ...DEFAULT_SETTINGS.reminder, ...(map.reminder as Partial<ReminderConfig> | undefined) },
+    serverUrl: (map.serverUrl as string) || DEFAULT_SETTINGS.serverUrl,
+    ai: { ...DEFAULT_SETTINGS.ai, ...(map.ai as Record<string, unknown> | undefined) },
+    tapd: { ...DEFAULT_SETTINGS.tapd, ...(map.tapd as Record<string, unknown> | undefined) },
+    reminder: { ...DEFAULT_SETTINGS.reminder, ...(map.reminder as Record<string, unknown> | undefined) },
   };
 }
-
-import type { AiConfig, TapdConfig, ReminderConfig } from "@/types";
 
 export async function saveSettings<K extends keyof AppSettings>(
   key: K,

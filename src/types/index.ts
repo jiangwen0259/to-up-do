@@ -31,23 +31,12 @@ export interface SubTask {
 
 export interface AiConfig {
   enabled: boolean;
-  provider: "openai" | "anthropic" | "custom";
-  apiKey: string;
-  baseUrl: string;
-  model: string;
 }
 
 export interface TapdConfig {
   enabled: boolean;
-  companyId: string;
-  authType: "basic" | "token";
-  username: string;
-  password: string;
+  workspaceId: string;
   syncInterval: number;
-  syncScope: {
-    workitemTypes: TapdWorkItemType[];
-    statusFilter: string[];
-  };
 }
 
 export interface ReminderConfig {
@@ -63,30 +52,21 @@ export interface ReminderConfig {
 }
 
 export interface AppSettings {
+  serverUrl: string;
   ai: AiConfig;
   tapd: TapdConfig;
   reminder: ReminderConfig;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
+  serverUrl: "http://localhost:8787",
   ai: {
     enabled: false,
-    provider: "openai",
-    apiKey: "",
-    baseUrl: "https://api.openai.com/v1",
-    model: "gpt-4o",
   },
   tapd: {
     enabled: false,
-    companyId: "",
-    authType: "basic",
-    username: "",
-    password: "",
+    workspaceId: "",
     syncInterval: 30,
-    syncScope: {
-      workitemTypes: ["story", "bug", "task"],
-      statusFilter: ["open", "in_progress"],
-    },
   },
   reminder: {
     enabled: true,

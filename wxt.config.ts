@@ -7,5 +7,6 @@ export default defineConfig({
     name: "To-Up-Do",
     description: "高效率的智能待办管理工具，集成 AI 助手与 TAPD",
     permissions: ["storage", "notifications", "alarms", "sidePanel"],
+    host_permissions: ["https://api.tapd.cn/*"],
   },
 });

@@ -1,14 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import type { AppSettings, AiConfig, TapdConfig, ReminderConfig } from "@/types";
 import { DEFAULT_SETTINGS } from "@/types";
 import { db, getSettings, saveSettings } from "@/db";
+import { testTapdConnection } from "@/services/tapd";
 
 interface Props {
   onClose: () => void;
 }
 
 export default function Settings({ onClose }: Props) {
-  const [tab, setTab] = useState<"ai" | "tapd" | "reminder">("ai");
+  const [tab, setTab] = useState<"server" | "tapd" | "reminder">("server");
+  const [serverUrl, setServerUrl] = useState(DEFAULT_SETTINGS.serverUrl);
   const [ai, setAi] = useState<AiConfig>(DEFAULT_SETTINGS.ai);
   const [tapd, setTapd] = useState<TapdConfig>(DEFAULT_SETTINGS.tapd);
   const [reminder, setReminder] = useState<ReminderConfig>(DEFAULT_SETTINGS.reminder);
@@ -16,6 +18,7 @@ export default function Settings({ onClose }: Props) {
 
   useEffect(() => {
     getSettings().then((s) => {
+      setServerUrl(s.serverUrl);
       setAi(s.ai);
       setTapd(s.tapd);
       setReminder(s.reminder);
@@ -23,6 +26,7 @@ export default function Settings({ onClose }: Props) {
   }, []);
 
   async function handleSave() {
+    await saveSettings("serverUrl", serverUrl);
     await saveSettings("ai", ai);
     await saveSettings("tapd", tapd);
     await saveSettings("reminder", reminder);
@@ -31,7 +35,7 @@ export default function Settings({ onClose }: Props) {
   }
 
   const tabs = [
-    { key: "ai" as const, label: "AI 助手" },
+    { key: "server" as const, label: "服务器" },
     { key: "tapd" as const, label: "TAPD" },
     { key: "reminder" as const, label: "提醒" },
   ];
@@ -40,9 +44,7 @@ export default function Settings({ onClose }: Props) {
     <div className="p-4 max-w-lg">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-gray-900">设置</h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg">
-          ✕
-        </button>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-lg">✕</button>
       </div>
 
       <div className="flex gap-1 mb-4 bg-gray-100 rounded-lg p-1">
@@ -59,8 +61,19 @@ export default function Settings({ onClose }: Props) {
         ))}
       </div>
 
-      {tab === "ai" && (
+      {tab === "server" && (
         <div className="space-y-3">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">后端服务地址</label>
+            <input
+              type="text"
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="http://localhost:8787"
+            />
+          </div>
+
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -71,50 +84,39 @@ export default function Settings({ onClose }: Props) {
             <span className="text-sm font-medium">启用 AI 助手</span>
           </label>
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">服务商</label>
-            <select
-              value={ai.provider}
-              onChange={(e) => setAi({ ...ai, provider: e.target.value as AiConfig["provider"] })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          <div className="pt-2 border-t">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${serverUrl}/health`);
+                  const data = await res.json();
+                  alert(`连接成功！服务版本: ${data.version}`);
+                } catch (e: any) {
+                  alert(`连接失败: ${e.message}`);
+                }
+              }}
+              className="w-full py-2 text-sm font-medium rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
             >
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="custom">自定义</option>
-            </select>
+              测试后端连接
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">API Key</label>
-            <input
-              type="password"
-              value={ai.apiKey}
-              onChange={(e) => setAi({ ...ai, apiKey: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="sk-..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">Base URL</label>
-            <input
-              type="text"
-              value={ai.baseUrl}
-              onChange={(e) => setAi({ ...ai, baseUrl: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="https://api.openai.com/v1"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">模型</label>
-            <input
-              type="text"
-              value={ai.model}
-              onChange={(e) => setAi({ ...ai, model: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="gpt-4o"
-            />
+          <div className="pt-2 border-t">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch(`${serverUrl}/api/settings/test-ai`, { method: "POST" });
+                  const data = await res.json();
+                  alert(data.ok ? "AI 服务连接成功" : `AI 服务连接失败: ${data.message}`);
+                } catch (e: any) {
+                  alert(`请求失败: ${e.message}`);
+                }
+              }}
+              disabled={!ai.enabled}
+              className="w-full py-2 text-sm font-medium rounded-lg bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              测试 AI 连接
+            </button>
           </div>
         </div>
       )}
@@ -132,45 +134,13 @@ export default function Settings({ onClose }: Props) {
           </label>
 
           <div>
-            <label className="block text-sm text-gray-600 mb-1">公司 ID</label>
+            <label className="block text-sm text-gray-600 mb-1">工作空间 ID</label>
             <input
               type="text"
-              value={tapd.companyId}
-              onChange={(e) => setTapd({ ...tapd, companyId: e.target.value })}
+              value={tapd.workspaceId}
+              onChange={(e) => setTapd({ ...tapd, workspaceId: e.target.value })}
               className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="TAPD workspace_id"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">认证方式</label>
-            <select
-              value={tapd.authType}
-              onChange={(e) => setTapd({ ...tapd, authType: e.target.value as TapdConfig["authType"] })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="basic">Basic Auth</option>
-              <option value="token">Token</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">用户名</label>
-            <input
-              type="text"
-              value={tapd.username}
-              onChange={(e) => setTapd({ ...tapd, username: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">密码 / Token</label>
-            <input
-              type="password"
-              value={tapd.password}
-              onChange={(e) => setTapd({ ...tapd, password: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="如 44789041"
             />
           </div>
 
@@ -184,6 +154,23 @@ export default function Settings({ onClose }: Props) {
               min={5}
             />
           </div>
+
+          <div className="pt-2 border-t">
+            <button
+              onClick={async () => {
+                await saveSettings("tapd", tapd);
+                const result = await testTapdConnection();
+                alert(result.ok ? result.message : `连接失败: ${result.message}`);
+              }}
+              className="w-full py-2 text-sm font-medium rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors"
+            >
+              测试 TAPD 连接
+            </button>
+          </div>
+
+          <p className="text-xs text-gray-400">
+            TAPD 凭证（Token/OAuth）在后端 config.json 中配置，插件端不存储敏感信息。
+          </p>
         </div>
       )}
 
@@ -211,56 +198,25 @@ export default function Settings({ onClose }: Props) {
           </div>
 
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={reminder.dailyDigest}
-              onChange={(e) => setReminder({ ...reminder, dailyDigest: e.target.checked })}
-              className="rounded"
-            />
+            <input type="checkbox" checked={reminder.dailyDigest} onChange={(e) => setReminder({ ...reminder, dailyDigest: e.target.checked })} className="rounded" />
             <span className="text-sm">每日概览</span>
           </label>
 
           <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={reminder.idleReminder}
-              onChange={(e) => setReminder({ ...reminder, idleReminder: e.target.checked })}
-              className="rounded"
-            />
+            <input type="checkbox" checked={reminder.idleReminder} onChange={(e) => setReminder({ ...reminder, idleReminder: e.target.checked })} className="rounded" />
             <span className="text-sm">闲置提醒</span>
           </label>
 
           <div className="pt-2 border-t">
             <label className="flex items-center gap-2 mb-2">
-              <input
-                type="checkbox"
-                checked={reminder.quietHours.enabled}
-                onChange={(e) =>
-                  setReminder({ ...reminder, quietHours: { ...reminder.quietHours, enabled: e.target.checked } })
-                }
-                className="rounded"
-              />
+              <input type="checkbox" checked={reminder.quietHours.enabled} onChange={(e) => setReminder({ ...reminder, quietHours: { ...reminder.quietHours, enabled: e.target.checked } })} className="rounded" />
               <span className="text-sm font-medium">免打扰时段</span>
             </label>
             {reminder.quietHours.enabled && (
               <div className="flex gap-2">
-                <input
-                  type="time"
-                  value={reminder.quietHours.start}
-                  onChange={(e) =>
-                    setReminder({ ...reminder, quietHours: { ...reminder.quietHours, start: e.target.value } })
-                  }
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none"
-                />
+                <input type="time" value={reminder.quietHours.start} onChange={(e) => setReminder({ ...reminder, quietHours: { ...reminder.quietHours, start: e.target.value } })} className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none" />
                 <span className="self-center text-gray-400">~</span>
-                <input
-                  type="time"
-                  value={reminder.quietHours.end}
-                  onChange={(e) =>
-                    setReminder({ ...reminder, quietHours: { ...reminder.quietHours, end: e.target.value } })
-                  }
-                  className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none"
-                />
+                <input type="time" value={reminder.quietHours.end} onChange={(e) => setReminder({ ...reminder, quietHours: { ...reminder.quietHours, end: e.target.value } })} className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none" />
               </div>
             )}
           </div>
@@ -268,16 +224,10 @@ export default function Settings({ onClose }: Props) {
       )}
 
       <div className="mt-6 flex gap-2">
-        <button
-          onClick={handleSave}
-          className="flex-1 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors"
-        >
+        <button onClick={handleSave} className="flex-1 py-2 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors">
           {saved ? "已保存 ✓" : "保存设置"}
         </button>
-        <button
-          onClick={onClose}
-          className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-        >
+        <button onClick={onClose} className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
           关闭
         </button>
       </div>
