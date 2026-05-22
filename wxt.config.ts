@@ -8,5 +8,14 @@ export default defineConfig({
     description: "高效率的智能待办管理工具，集成 AI 助手与 TAPD",
     permissions: ["storage", "notifications", "alarms", "sidePanel"],
     host_permissions: ["https://api.tapd.cn/*"],
+    icons: {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png",
+    },
   },
+  vite: () => ({
+    base: "./",
+  }),
 });
