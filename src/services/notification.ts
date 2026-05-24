@@ -1,23 +1,33 @@
 export async function requestNotificationPermission(): Promise<boolean> {
-  if (!("Notification" in window)) return false;
-  if (Notification.permission === "granted") return true;
-  const result = await Notification.requestPermission();
-  return result === "granted";
+  try {
+    if (chrome.notifications) {
+      await chrome.notifications.requestPermission?.();
+      return true;
+    }
+  } catch {}
+  return false;
 }
 
 export function showNotification(title: string, body: string, onClick?: () => void): void {
-  if (Notification.permission !== "granted") return;
-
-  const notification = new Notification(title, {
-    body,
-    icon: "/icon/128.png",
-  });
-
-  if (onClick) {
-    notification.onclick = onClick;
-  }
-
-  setTimeout(() => notification.close(), 5000);
+  try {
+    if (chrome.notifications) {
+      const id = `todo-${Date.now()}`;
+      chrome.notifications.create(id, {
+        type: "basic",
+        iconUrl: "icons/128.png",
+        title,
+        message: body,
+      });
+      if (onClick) {
+        chrome.notifications.onClicked.addListener((nid) => {
+          if (nid === id) onClick();
+        });
+      }
+      setTimeout(() => {
+        chrome.notifications.clear(id);
+      }, 5000);
+    }
+  } catch {}
 }
 
 export function formatDueMessage(minutesLeft: number): string {
