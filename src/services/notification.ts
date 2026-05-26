@@ -30,6 +30,37 @@ export function showNotification(title: string, body: string, onClick?: () => vo
   } catch {}
 }
 
+export async function updateBadge(): Promise<void> {
+  try {
+    const { db, getSettings } = await import("@/db");
+    const settings = await getSettings();
+    if (!settings.reminder.enabled) {
+      chrome.action.setBadgeText({ text: "" });
+      return;
+    }
+
+    const todos = await db.todos
+      .where("status")
+      .anyOf(["todo", "in_progress"])
+      .toArray();
+
+    const now = Date.now();
+    const deadlineAdvance = settings.reminder.deadlineAdvance * 60 * 1000;
+    const count = todos.filter((t) => {
+      if (!t.dueDate) return false;
+      const due = new Date(t.dueDate).getTime();
+      return due - now <= deadlineAdvance;
+    }).length;
+
+    if (count > 0) {
+      chrome.action.setBadgeText({ text: count > 99 ? "99+" : String(count) });
+      chrome.action.setBadgeBackgroundColor({ color: "#EF4444" });
+    } else {
+      chrome.action.setBadgeText({ text: "" });
+    }
+  } catch {}
+}
+
 export function formatDueMessage(minutesLeft: number): string {
   if (minutesLeft <= 0) return "已过期";
   if (minutesLeft < 60) return `${minutesLeft} 分钟后到期`;
