@@ -9,10 +9,10 @@ interface Props {
 }
 
 const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
-  { value: "low", label: "低", color: "bg-slate-100 text-slate-500 ring-slate-200" },
-  { value: "medium", label: "中", color: "bg-blue-50 text-blue-600 ring-blue-200" },
-  { value: "high", label: "高", color: "bg-amber-50 text-amber-600 ring-amber-200" },
-  { value: "urgent", label: "紧急", color: "bg-red-50 text-red-600 ring-red-200" },
+  { value: "low", label: "低", color: "bg-slate-700/80 text-slate-300 ring-slate-600" },
+  { value: "medium", label: "中", color: "bg-blue-500/20 text-blue-400 ring-blue-500/30" },
+  { value: "high", label: "高", color: "bg-amber-500/20 text-amber-400 ring-amber-500/30" },
+  { value: "urgent", label: "紧急", color: "bg-red-500/20 text-red-400 ring-red-500/30" },
 ];
 
 const QUICK_DATES: { label: string; offset: number | "nextMon" | "nextSun"; hours?: number }[] = [
@@ -39,7 +39,6 @@ function getDateForOffset(offset: number | "nextMon" | "nextSun", hours?: number
     d.setDate(d.getDate() + diff);
     d.setHours(hours ?? 10, 0, 0, 0);
   } else if (offset < 1) {
-    // fractional = hours from now
     d.setTime(d.getTime() + offset * 24 * 60 * 60 * 1000);
   } else {
     d.setDate(d.getDate() + offset);
@@ -61,6 +60,8 @@ function formatDateDisplay(dateStr: string): string {
   if (isTomorrow) return `明天 ${time}`;
   return `${d.getMonth() + 1}/${d.getDate()} ${time}`;
 }
+
+const inputBase = "px-3 py-2 border border-slate-600 rounded-lg text-[13px] outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 transition-all placeholder:text-slate-500 bg-slate-800 text-slate-200";
 
 export default function TodoForm({ todo, onSave, onCancel, onAiBreakdown }: Props) {
   const [title, setTitle] = useState("");
@@ -138,113 +139,121 @@ export default function TodoForm({ todo, onSave, onCancel, onAiBreakdown }: Prop
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      {/* Title input */}
+    <form onSubmit={handleSubmit} className="space-y-3.5">
+      {/* Title row */}
       <div className="flex gap-2">
         <input
           ref={inputRef}
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-[13px] focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-400 outline-none transition-shadow"
+          className={`flex-1 ${inputBase}`}
           placeholder="记一笔，回车保存..."
           required
           onKeyDown={(e) => {
             if (e.key === "Escape") onCancel();
           }}
         />
-        <button type="submit" className="px-4 py-2 bg-indigo-500 text-white text-[12px] font-medium rounded-lg hover:bg-indigo-600 transition-colors whitespace-nowrap shadow-sm">
+        <button type="submit" className="px-5 py-2 bg-teal-600 text-white text-[13px] font-medium rounded-lg hover:bg-teal-700 transition-colors whitespace-nowrap shadow-sm">
           {isEdit ? "保存" : "添加"}
         </button>
       </div>
 
-      {/* Priority + Date row */}
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1">
-          {PRIORITY_OPTIONS.map((p) => (
-            <button
-              key={p.value}
-              type="button"
-              onClick={() => setPriority(p.value)}
-              className={`text-[11px] px-2 py-1 rounded-md transition-all ring-1 ${
-                priority === p.value ? p.color : "bg-white text-slate-400 ring-slate-100 hover:ring-slate-200"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
+      {/* Priority + Date section */}
+      <div className="bg-slate-800/60 rounded-lg p-2.5 space-y-2.5 border border-slate-700/60">
+        {/* Priority */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-slate-400 w-8 flex-shrink-0">优先级</span>
+          <div className="flex gap-1">
+            {PRIORITY_OPTIONS.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setPriority(p.value)}
+                className={`text-[11px] px-2.5 py-1 rounded-md transition-all ring-1 ${
+                  priority === p.value ? p.color + " shadow-sm" : "bg-slate-800/80 text-slate-400 ring-slate-600 hover:ring-slate-500"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Date quick picks */}
-        <div className="ml-auto flex items-center gap-1 flex-wrap justify-end">
-          {QUICK_DATES.slice(0, 4).map((qd) => (
-            <button
-              key={qd.label}
-              type="button"
-              onClick={() => setDueDate(getDateForOffset(qd.offset, qd.hours))}
-              className={`text-[10px] px-1.5 py-0.5 rounded transition-colors ${
-                dueDate && formatDateDisplay(dueDate).includes(qd.label.slice(0, 2))
-                  ? "bg-indigo-100 text-indigo-600"
-                  : "bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-500"
-              }`}
-            >
-              {qd.label}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setShowQuickMore(!showQuickMore)}
-            className="text-[10px] px-1 py-0.5 text-slate-400 hover:text-indigo-500"
-          >
-            {showQuickMore ? "收起" : "更多"}
-          </button>
-        </div>
-
-        {showQuickMore && (
-          <div className="flex items-center gap-1 flex-wrap">
-            {QUICK_DATES.slice(4).map((qd) => (
+        <div className="flex items-start gap-1.5">
+          <span className="text-[10px] text-slate-400 w-8 flex-shrink-0 mt-1">截止</span>
+          <div className="flex-1">
+            <div className="flex items-center gap-1 flex-wrap">
+              {QUICK_DATES.slice(0, 4).map((qd) => (
+                <button
+                  key={qd.label}
+                  type="button"
+                  onClick={() => setDueDate(getDateForOffset(qd.offset, qd.hours))}
+                  className={`text-[11px] px-2 py-1 rounded-md transition-colors ${
+                    dueDate && formatDateDisplay(dueDate).includes(qd.label.slice(0, 2))
+                      ? "bg-teal-500/20 text-teal-400 font-medium"
+                      : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-teal-400"
+                  }`}
+                >
+                  {qd.label}
+                </button>
+              ))}
               <button
-                key={qd.label}
                 type="button"
-                onClick={() => { setDueDate(getDateForOffset(qd.offset, qd.hours)); setShowQuickMore(false); }}
-                className="text-[10px] px-1.5 py-0.5 rounded bg-slate-50 text-slate-400 hover:bg-indigo-50 hover:text-indigo-500 transition-colors"
+                onClick={() => setShowQuickMore(!showQuickMore)}
+                className="text-[11px] px-1.5 py-1 text-slate-500 hover:text-teal-400 transition-colors"
               >
-                {qd.label}
+                {showQuickMore ? "收起" : "更多"}
               </button>
-            ))}
-            {/* Custom datetime */}
-            <div className="flex items-center gap-1">
-              <input
-                ref={dateInputRef}
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e) => { setDueDate(e.target.value); setShowQuickMore(false); }}
-                className="px-1.5 py-0.5 border border-slate-200 rounded text-[10px] outline-none focus:border-indigo-400 text-slate-500 w-[140px]"
-              />
+              {dueDate && (
+                <button type="button" onClick={clearDate} className="text-[11px] px-1.5 py-1 text-slate-500 hover:text-red-400 transition-colors">
+                  清除
+                </button>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Selected date display + clear */}
-        {dueDate && !showQuickMore && (
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] text-indigo-500 font-medium">{formatDateDisplay(dueDate)}</span>
-            <button type="button" onClick={clearDate} className="text-[10px] text-slate-300 hover:text-red-400 transition-colors">清除</button>
+            {showQuickMore && (
+              <div className="flex items-center gap-1 flex-wrap mt-1.5">
+                {QUICK_DATES.slice(4).map((qd) => (
+                  <button
+                    key={qd.label}
+                    type="button"
+                    onClick={() => { setDueDate(getDateForOffset(qd.offset, qd.hours)); setShowQuickMore(false); }}
+                    className="text-[11px] px-2 py-1 rounded-md bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-teal-400 transition-colors"
+                  >
+                    {qd.label}
+                  </button>
+                ))}
+                <input
+                  ref={dateInputRef}
+                  type="datetime-local"
+                  value={dueDate}
+                  onChange={(e) => { setDueDate(e.target.value); setShowQuickMore(false); }}
+                  className="px-2 py-1 border border-slate-600 rounded-md text-[11px] outline-none focus:border-teal-400 text-slate-300 w-[135px] bg-slate-800"
+                />
+              </div>
+            )}
+
+            {dueDate && !showQuickMore && (
+              <p className="text-[11px] text-teal-400 font-medium mt-1">{formatDateDisplay(dueDate)}</p>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Expand more */}
       {!showMore ? (
-        <button type="button" onClick={() => setShowMore(true)} className="text-[11px] text-slate-400 hover:text-indigo-500 transition-colors">
-          + 描述 / 标签 / 子任务
+        <button type="button" onClick={() => setShowMore(true)} className="text-[12px] text-slate-400 hover:text-teal-400 transition-colors flex items-center gap-1">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+          描述 / 标签 / 子任务
         </button>
       ) : (
-        <>
+        <div className="space-y-3 bg-slate-800/60 rounded-lg p-3 border border-slate-700/60">
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-[12px] outline-none focus:border-indigo-400 resize-none transition-colors"
+            className={`w-full ${inputBase} resize-none`}
             rows={2}
             placeholder="备注（可选）"
           />
@@ -253,46 +262,46 @@ export default function TodoForm({ todo, onSave, onCancel, onAiBreakdown }: Prop
             type="text"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-[12px] outline-none focus:border-indigo-400 transition-colors"
+            className={`w-full ${inputBase}`}
             placeholder="标签，逗号分隔"
           />
 
           {/* Sub tasks */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-slate-400">子任务</span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-medium text-slate-400">子任务</span>
               {onAiBreakdown && (
-                <button type="button" onClick={handleAiBreakdown} disabled={aiLoading || !title.trim()} className="text-[11px] text-indigo-500 hover:text-indigo-600 disabled:opacity-50">
-                  {aiLoading ? "拆解中..." : "AI 拆解 ✨"}
+                <button type="button" onClick={handleAiBreakdown} disabled={aiLoading || !title.trim()} className="text-[11px] text-teal-400 hover:text-teal-300 disabled:opacity-40 transition-colors font-medium">
+                  {aiLoading ? "拆解中..." : "AI 拆解"}
                 </button>
               )}
             </div>
             {subTasks.map((st) => (
-              <div key={st.id} className="flex items-center gap-2 py-0.5">
-                <button type="button" onClick={() => setSubTasks(subTasks.map((s) => s.id === st.id ? { ...s, done: !s.done } : s))} className="text-[13px]">
+              <div key={st.id} className="flex items-center gap-2 py-1">
+                <button type="button" onClick={() => setSubTasks(subTasks.map((s) => s.id === st.id ? { ...s, done: !s.done } : s))} className="text-[13px] flex-shrink-0 text-slate-400">
                   {st.done ? "☑" : "☐"}
                 </button>
-                <span className={`text-[12px] flex-1 ${st.done ? "line-through text-slate-400" : ""}`}>{st.title}</span>
-                <button type="button" onClick={() => setSubTasks(subTasks.filter((s) => s.id !== st.id))} className="text-[11px] text-slate-400 hover:text-red-500">✕</button>
+                <span className={`text-[12px] flex-1 truncate ${st.done ? "line-through text-slate-600" : "text-slate-300"}`}>{st.title}</span>
+                <button type="button" onClick={() => setSubTasks(subTasks.filter((s) => s.id !== st.id))} className="text-[11px] text-slate-500 hover:text-red-400 transition-colors flex-shrink-0">✕</button>
               </div>
             ))}
-            <div className="flex gap-2 mt-1">
+            <div className="flex gap-2 mt-2">
               <input
                 type="text"
                 value={newSubTask}
                 onChange={(e) => setNewSubTask(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSubTask())}
-                className="flex-1 px-2 py-1 border border-slate-200 rounded text-[12px] outline-none focus:border-indigo-400"
+                className={`flex-1 py-1.5 ${inputBase}`}
                 placeholder="添加子任务"
               />
-              <button type="button" onClick={addSubTask} className="px-2 py-1 text-[11px] bg-slate-50 hover:bg-slate-100 rounded ring-1 ring-slate-200">+</button>
+              <button type="button" onClick={addSubTask} className="px-3 py-1.5 text-[12px] font-medium bg-slate-700 text-slate-300 border border-slate-600 rounded-lg hover:bg-slate-600 transition-colors">+</button>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {isEdit && (
-        <button type="button" onClick={onCancel} className="w-full py-1.5 text-[12px] text-slate-400 hover:text-slate-600">
+        <button type="button" onClick={onCancel} className="w-full py-2 text-[13px] text-slate-400 hover:text-slate-200 transition-colors">
           取消
         </button>
       )}

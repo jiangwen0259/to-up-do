@@ -43,3 +43,19 @@ export async function aiGenerateWeeklyReport(tasks: string[], reportType: "weekl
   const data = await res.json();
   return data.report;
 }
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+export async function aiChat(messages: ChatMessage[], systemPrompt?: string): Promise<string> {
+  const res = await fetch(`${API_BASE}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages, system_prompt: systemPrompt }),
+  });
+  if (!res.ok) throw new Error(`AI chat failed: ${res.status}`);
+  const data = await res.json();
+  return data.reply;
+}

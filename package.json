@@ -1,11 +1,11 @@
 {
   "name": "to-up-do",
-  "version": "1.0.0",
+  "version": "1.0.18",
   "description": "一款高效率的智能待办管理工具，集成 AI 助手与 TAPD 项目管理，让待办不再遗漏。",
   "type": "module",
   "scripts": {
     "dev": "wxt",
-    "build": "wxt build",
+    "build": "./build.sh",
     "zip": "wxt zip",
     "postinstall": "wxt prepare"
   },
@@ -25,6 +25,7 @@
     "dexie": "^4.4.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "sharp": "^0.35.0",
     "wxt": "^0.20.26"
   },
   "devDependencies": {

@@ -19,7 +19,7 @@
 
 - 框架：WXT (Web Extension Tools)
 - 构建：`npm run build` / `npm run dev`
-- 产出目录：`dist/` 或 `.output/chrome-mv3/`
+- 产出目录：`dist/`（构建产物写入此目录，`.output/` 为隐藏目录不要使用）
 
 ## AI 配置
 

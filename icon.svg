@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- 深空背景：微偏暖的深蓝黑 -->
+    <radialGradient id="bg" cx="50%" cy="40%" r="85%">
+      <stop offset="0%" stop-color="#182034"/>
+      <stop offset="100%" stop-color="#0b0f1a"/>
+    </radialGradient>
+
+    <!-- T 字主色：从青 → 翠 → 淡紫的微妙偏移，单色主调但有层次 -->
+    <linearGradient id="t-fill" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="55%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#a5b4fc"/>
+    </linearGradient>
+
+    <!-- T 字高光：横向渐变 -->
+    <linearGradient id="t-shine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f0fdfa" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#f0fdfa" stop-opacity="0.45"/>
+      <stop offset="70%" stop-color="#f0fdfa" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#f0fdfa" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 小箭头：琥珀暖色 -->
+    <linearGradient id="arrow" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+
+    <!-- 边框：青 → 紫 → 橙 彩虹渐变 -->
+    <linearGradient id="border" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+
+    <!-- 背后柔光 -->
+    <radialGradient id="glow" cx="50%" cy="42%" r="45%">
+      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 微光滤镜 -->
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="1.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- ── 底座 ── -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="url(#bg)"/>
+
+  <!-- 柔光 -->
+  <ellipse cx="64" cy="54" rx="56" ry="48" fill="url(#glow)"/>
+
+  <!-- ── T 字 ── -->
+  <g filter="url(#soft)">
+    <!-- 顶部横条 -->
+    <rect x="14" y="20" width="100" height="19" rx="4.5" fill="url(#t-fill)"/>
+    <!-- 竖杆 -->
+    <rect x="49" y="39" width="30" height="48" rx="4" fill="url(#t-fill)"/>
+  </g>
+
+  <!-- 横条高光带 -->
+  <rect x="16" y="22" width="96" height="3" rx="1.5" fill="url(#t-shine)"/>
+
+  <!-- 竖杆中线高光 -->
+  <rect x="59" y="41" width="10" height="44" rx="2" fill="#f0fdfa" opacity="0.12"/>
+
+  <!-- ── 小箭头（↑） ── -->
+  <path d="M55 105 L64 96 L73 105"
+        fill="none" stroke="url(#arrow)" stroke-width="4.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- 箭头小亮点 -->
+  <circle cx="64" cy="95" r="1.8" fill="#fef3c7" opacity="0.8"/>
+
+  <!-- ── 彩虹细边 ── -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="none"
+        stroke="url(#border)" stroke-width="1.3" opacity="0.55"/>
+</svg>

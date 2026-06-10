@@ -18,16 +18,16 @@ interface Props {
 }
 
 const STATUS: Record<TodoStatus, { label: string; style: string }> = {
-  todo: { label: "待办", style: "bg-slate-100 text-slate-500 hover:bg-slate-200/70" },
-  in_progress: { label: "进行中", style: "bg-blue-100 text-blue-600 hover:bg-blue-200/70" },
-  done: { label: "完成", style: "bg-emerald-100 text-emerald-600 hover:bg-emerald-200/70" },
+  todo: { label: "待办", style: "bg-slate-700/80 text-slate-300 hover:bg-slate-600/80" },
+  in_progress: { label: "进行中", style: "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30" },
+  done: { label: "完成", style: "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" },
 };
 
 const PRIORITY: Record<Priority, { label: string; color: string; dot: string }> = {
-  low: { label: "低", color: "text-slate-400", dot: "bg-slate-300" },
-  medium: { label: "中", color: "text-blue-500", dot: "bg-blue-400" },
-  high: { label: "高", color: "text-amber-500", dot: "bg-amber-400" },
-  urgent: { label: "紧急", color: "text-red-500", dot: "bg-red-400" },
+  low: { label: "低", color: "text-slate-400", dot: "bg-slate-500" },
+  medium: { label: "中", color: "text-blue-400", dot: "bg-blue-500" },
+  high: { label: "高", color: "text-amber-400", dot: "bg-amber-500" },
+  urgent: { label: "紧急", color: "text-red-400", dot: "bg-red-500" },
 };
 
 export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityChange, isDragging, isDragOver, dragHandlers }: Props) {
@@ -36,20 +36,24 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
   const s = STATUS[todo.status];
   const p = PRIORITY[todo.priority];
 
+  const baseStyle = "bg-slate-800/60 hover:border-slate-600";
+  const dragStyle = isDragging ? "opacity-30 border-blue-400/50 bg-blue-500/10 scale-[0.98]" : "";
+  const overStyle = isDragOver && !isDragging ? "border-blue-400 bg-blue-500/20 shadow-sm" : "";
+  const doneStyle = isDone && !isDragging ? "opacity-50" : "";
+  const overdueStyle = overdue && !isDragging ? "border-red-500/50 bg-red-500/10" : "";
+  const normalStyle = !isDragging && !isDragOver && !overdue ? baseStyle : "";
+
   return (
     <div
       className={`group flex items-start gap-2.5 px-3 py-2.5 rounded-xl border transition-all duration-150 select-none
-        ${isDragging ? "opacity-30 border-blue-300 bg-blue-50/30 scale-[0.98]" : ""}
-        ${isDragOver && !isDragging ? "border-blue-300/70 bg-blue-50/40" : ""}
-        ${!isDragging && !isDragOver ? "border-slate-200/70 bg-white hover:border-slate-300/80" : ""}
-        ${isDone && !isDragging ? "opacity-45" : ""}
-        ${overdue && !isDragging ? "!border-red-200 !bg-red-50/30" : ""}
+        ${normalStyle} ${dragStyle} ${overStyle} ${doneStyle} ${overdueStyle}
+        ${!isDragging && !isDragOver && !overdue ? "border-slate-700/60" : ""}
       `}
       draggable
       {...dragHandlers}
     >
       {/* Drag handle */}
-      <div className="mt-1.5 cursor-grab active:cursor-grabbing text-slate-200 group-hover:text-slate-400 transition-colors flex-shrink-0">
+      <div className="mt-1.5 cursor-grab active:cursor-grabbing text-slate-500 group-hover:text-slate-300 transition-colors flex-shrink-0">
         <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor">
           <circle cx="2.5" cy="2" r="1.2" /><circle cx="7.5" cy="2" r="1.2" />
           <circle cx="2.5" cy="7" r="1.2" /><circle cx="7.5" cy="7" r="1.2" />
@@ -60,7 +64,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
       {/* Status badge */}
       <button
         onClick={() => todo.id && onToggle(todo.id)}
-        className={`mt-1 text-[10px] leading-none px-1.5 py-[3px] rounded-md font-medium transition-colors flex-shrink-0 ${s.style}`}
+        className={`mt-1 text-[10px] leading-none px-1.5 py-[3px] rounded-md font-medium transition-all flex-shrink-0 ${s.style}`}
         title="点击切换状态"
       >
         {s.label}
@@ -68,7 +72,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className={`text-[13px] leading-snug truncate ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}>
+        <p className={`text-[13px] leading-snug truncate ${isDone ? "line-through text-slate-500" : "text-slate-200"}`}>
           {todo.title}
         </p>
 
@@ -85,7 +89,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
               </div>
             ))}
             {todo.subTasks.length > 2 && (
-              <span className="text-[10px] text-slate-300 ml-3.5">+{todo.subTasks.length - 2} 项</span>
+              <span className="text-[10px] text-slate-500 ml-3.5">+{todo.subTasks.length - 2} 项</span>
             )}
           </div>
         )}
@@ -101,15 +105,15 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
             {p.label}
           </button>
           {todo.source === "tapd" && (
-            <span className="text-[10px] px-1.5 py-[1px] rounded bg-violet-50 text-violet-500 font-medium leading-tight">TAPD</span>
+            <span className="text-[10px] px-1.5 py-[1px] rounded bg-violet-500/20 text-violet-400 font-medium leading-tight">TAPD</span>
           )}
           {todo.dueDate && (
-            <span className={`text-[10px] ${overdue ? "text-red-500 font-medium" : "text-slate-400"}`}>
+            <span className={`text-[10px] ${overdue ? "text-red-400 font-semibold" : "text-slate-400"}`}>
               {formatDate(todo.dueDate)}
             </span>
           )}
           {todo.tags.length > 0 && (
-            <span className="text-[10px] text-slate-300">{todo.tags.map((t) => `#${t}`).join(" ")}</span>
+            <span className="text-[10px] text-slate-500">{todo.tags.map((t) => `#${t}`).join(" ")}</span>
           )}
         </div>
       </div>
@@ -118,7 +122,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1">
         <button
           onClick={() => onEdit(todo)}
-          className="p-1 text-slate-300 hover:text-blue-500 rounded hover:bg-blue-50 transition-colors"
+          className="p-1 text-slate-500 hover:text-blue-400 rounded-md hover:bg-blue-500/20 transition-colors"
           title="编辑"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -127,7 +131,7 @@ export default function TodoItem({ todo, onToggle, onDelete, onEdit, onPriorityC
         </button>
         <button
           onClick={() => todo.id && onDelete(todo.id)}
-          className="p-1 text-slate-300 hover:text-red-500 rounded hover:bg-red-50 transition-colors"
+          className="p-1 text-slate-500 hover:text-red-400 rounded-md hover:bg-red-500/20 transition-colors"
           title="删除"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

@@ -33,9 +33,16 @@ export interface AiConfig {
   enabled: boolean;
 }
 
+export interface TapdProject {
+  id: string;
+  name: string;
+  workspaceId: string;
+}
+
 export interface TapdConfig {
   enabled: boolean;
-  workspaceId: string;
+  projects: TapdProject[];
+  activeProjectId: string;
   syncInterval: number;
 }
 
@@ -65,7 +72,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   tapd: {
     enabled: false,
-    workspaceId: "",
+    projects: [],
+    activeProjectId: "",
     syncInterval: 30,
   },
   reminder: {

@@ -1,0 +1,31 @@
+{
+    "env": {
+        "ANTHROPIC_AUTH_TOKEN": "sk-42c40aca6da67fb94fd834ab77964d8f107c20a1e2073026",
+        "ANTHROPIC_BASE_URL": "http://www.esnode.com",
+        "ANTHROPIC_MODEL": "glm-5.1",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "32000"
+    },
+  "permissions": {
+    "allow": [
+      "Bash(npx *)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git reset *)",
+      "Bash(git rm *)",
+      "Bash(kill %1 %2 %3)",
+      "Bash(kill %1 %2)",
+      "Bash(python3 -m json.tool)",
+      "Bash(rm -rf /Users/wallace/resource/to-up-do/dist/*)",
+      "Bash(cp -r /Users/wallace/resource/to-up-do/.output/chrome-mv3/* /Users/wallace/resource/to-up-do/dist/)",
+      "Bash(kill 99627 *)",
+      "Bash(python -m app.main)",
+      "Bash(python3 -m app.main)",
+      "Bash(pip3 list *)",
+      "Bash(pip3 install *)",
+      "Bash(npm run *)"
+    ]
+  }
+}
