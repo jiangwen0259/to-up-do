@@ -1,81 +1,206 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
-    <!-- 深空背景：微偏暖的深蓝黑 -->
-    <radialGradient id="bg" cx="50%" cy="40%" r="85%">
-      <stop offset="0%" stop-color="#182034"/>
-      <stop offset="100%" stop-color="#0b0f1a"/>
+    <!-- ═══════════ 底座：深空玻璃 ═══════════ -->
+    <radialGradient id="bgRadial" cx="30%" cy="20%" r="110%">
+      <stop offset="0%" stop-color="#1a2540"/>
+      <stop offset="40%" stop-color="#0a1124"/>
+      <stop offset="100%" stop-color="#020410"/>
     </radialGradient>
 
-    <!-- T 字主色：从青 → 翠 → 淡紫的微妙偏移，单色主调但有层次 -->
-    <linearGradient id="t-fill" x1="0%" y1="0%" x2="100%" y2="80%">
-      <stop offset="0%" stop-color="#67e8f9"/>
-      <stop offset="55%" stop-color="#2dd4bf"/>
-      <stop offset="100%" stop-color="#a5b4fc"/>
+    <linearGradient id="ambientTop" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
 
-    <!-- T 字高光：横向渐变 -->
-    <linearGradient id="t-shine" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#f0fdfa" stop-opacity="0"/>
-      <stop offset="30%" stop-color="#f0fdfa" stop-opacity="0.45"/>
-      <stop offset="70%" stop-color="#f0fdfa" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#f0fdfa" stop-opacity="0"/>
+    <!-- ═══════════ 统一 3D 三面渐变 ═══════════ -->
+    <linearGradient id="faceTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0fbf5"/>
+      <stop offset="50%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#2dd4bf"/>
+    </linearGradient>
+    <linearGradient id="faceFront" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="50%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+    <linearGradient id="faceSide" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0e7490"/>
+      <stop offset="100%" stop-color="#155e75"/>
     </linearGradient>
 
-    <!-- 小箭头：琥珀暖色 -->
-    <linearGradient id="arrow" x1="50%" y1="100%" x2="50%" y2="0%">
-      <stop offset="0%" stop-color="#fb923c"/>
+    <linearGradient id="specular" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 顶部箭头特殊高光（金色点睛） -->
+    <linearGradient id="apex" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fef9c3"/>
+      <stop offset="40%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+
+    <!-- ═══════════ 光晕 ═══════════ -->
+    <radialGradient id="holoGlow" cx="50%" cy="55%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#0ea5e9" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="purpleGlow" cx="80%" cy="80%" r="40%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 顶部金色光斑（强调上升点） -->
+    <radialGradient id="apexGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#fde047" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#fde047" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="rainbowBorder" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="33%" stop-color="#a855f7"/>
+      <stop offset="66%" stop-color="#ec4899"/>
       <stop offset="100%" stop-color="#fbbf24"/>
     </linearGradient>
 
-    <!-- 边框：青 → 紫 → 橙 彩虹渐变 -->
-    <linearGradient id="border" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="50%" stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#fb923c"/>
-    </linearGradient>
-
-    <!-- 背后柔光 -->
-    <radialGradient id="glow" cx="50%" cy="42%" r="45%">
-      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.22"/>
-      <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0"/>
-    </radialGradient>
-
-    <!-- 微光滤镜 -->
-    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
-      <feGaussianBlur stdDeviation="1.5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    <!-- 滤镜 -->
+    <filter id="dropShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.5"/>
+      <feOffset dx="0" dy="5" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.65"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
     </filter>
+
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <clipPath id="frameClip">
+      <rect x="2" y="2" width="124" height="124" rx="30"/>
+    </clipPath>
   </defs>
 
-  <!-- ── 底座 ── -->
-  <rect x="4" y="4" width="120" height="120" rx="26" fill="url(#bg)"/>
+  <!-- ═══════════ 底座 ═══════════ -->
+  <rect x="2" y="2" width="124" height="124" rx="30" fill="url(#bgRadial)"/>
 
-  <!-- 柔光 -->
-  <ellipse cx="64" cy="54" rx="56" ry="48" fill="url(#glow)"/>
+  <g clip-path="url(#frameClip)">
+    <rect x="2" y="2" width="124" height="80" fill="url(#ambientTop)"/>
+    <circle cx="100" cy="100" r="40" fill="url(#purpleGlow)"/>
+    <ellipse cx="64" cy="68" rx="50" ry="42" fill="url(#holoGlow)"/>
 
-  <!-- ── T 字 ── -->
-  <g filter="url(#soft)">
-    <!-- 顶部横条 -->
-    <rect x="14" y="20" width="100" height="19" rx="4.5" fill="url(#t-fill)"/>
-    <!-- 竖杆 -->
-    <rect x="49" y="39" width="30" height="48" rx="4" fill="url(#t-fill)"/>
+    <!-- 透视网格 -->
+    <g opacity="0.18" stroke="#22d3ee" stroke-width="0.4" fill="none">
+      <line x1="0" y1="110" x2="128" y2="110"/>
+      <line x1="0" y1="118" x2="128" y2="118"/>
+      <line x1="20" y1="110" x2="-8" y2="128"/>
+      <line x1="44" y1="110" x2="34" y2="128"/>
+      <line x1="64" y1="110" x2="64" y2="128"/>
+      <line x1="84" y1="110" x2="94" y2="128"/>
+      <line x1="108" y1="110" x2="136" y2="128"/>
+    </g>
+
+    <!--
+      ═══════════════════════════════════════════════
+      核心设计：T 字 + 顶部融合的尖头箭头
+      整体读作 "↑T"：竖杆向上延伸出尖角，顶横之上嵌入箭头帽
+      所有几何体共享一致的等距 3D 三面语言
+      ═══════════════════════════════════════════════
+    -->
+    <g filter="url(#dropShadow)">
+      <!-- ━━━━ 1. T 横条 ━━━━ -->
+      <!-- 右侧深度面 -->
+      <path d="M104 38 L110 32 L110 52 L104 58 Z" fill="url(#faceSide)"/>
+      <!-- 底部深度面 -->
+      <path d="M24 58 L30 52 L110 52 L104 58 Z" fill="url(#faceSide)" opacity="0.85"/>
+      <!-- 正面 -->
+      <rect x="24" y="38" width="80" height="20" rx="3" fill="url(#faceFront)"/>
+      <!-- 顶面 -->
+      <path d="M24 38 L30 32 L110 32 L104 38 Z" fill="url(#faceTop)"/>
+      <!-- 顶面亮边 -->
+      <path d="M26 37 L31 33 L108 33 L104 37 Z" fill="#ffffff" opacity="0.4"/>
+      <!-- 镜面反光 -->
+      <rect x="24" y="38" width="80" height="20" rx="3" fill="url(#specular)" opacity="0.5"/>
+      <!-- 底部暗带 -->
+      <rect x="24" y="52" width="80" height="6" rx="3" fill="#000" opacity="0.22"/>
+
+      <!-- ━━━━ 2. T 竖杆 ━━━━ -->
+      <path d="M76 58 L82 52 L82 100 L76 106 Z" fill="url(#faceSide)"/>
+      <rect x="54" y="58" width="22" height="48" rx="2.5" fill="url(#faceFront)"/>
+      <rect x="54" y="58" width="22" height="48" rx="2.5" fill="url(#specular)" opacity="0.45"/>
+      <rect x="56" y="60" width="2.5" height="44" rx="1.25" fill="#ccfbf1" opacity="0.7"/>
+      <!-- 竖杆底面 -->
+      <path d="M54 106 L60 100 L82 100 L76 106 Z" fill="url(#faceSide)" opacity="0.7"/>
+      <!-- 竖杆底部暗带 -->
+      <rect x="54" y="100" width="22" height="6" rx="2.5" fill="#000" opacity="0.25"/>
+
+      <!--
+        ━━━━ 3. 顶部箭头帽（与 T 融合） ━━━━
+        关键：箭头从横条上方"长"出来，形成统一的图形
+        几何：以 (64, 14) 为顶点的等距 3D 三角箭头
+              底边与横条顶部 (y=32) 平齐
+              宽度 (40,32) → (88,32)，比横条窄，视觉聚焦
+      -->
+      <!-- 箭头右侧深度面 -->
+      <path d="M64 14 L70 8 L94 32 L88 32 Z" fill="url(#faceSide)" opacity="0.9"/>
+      <!-- 箭头正面（左半三角） -->
+      <path d="M40 32 L64 14 L64 32 Z" fill="url(#faceFront)"/>
+      <!-- 箭头正面（右半三角） -->
+      <path d="M64 14 L88 32 L64 32 Z" fill="url(#faceFront)" opacity="0.92"/>
+      <!-- 箭头顶面（斜面，偏黄金色点睛） -->
+      <path d="M64 14 L70 8 L70 8 L64 14 Z" fill="url(#apex)"/>
+      <!-- 箭头左侧顶面（很窄的高亮三角） -->
+      <path d="M40 32 L46 26 L70 8 L64 14 Z" fill="url(#faceTop)"/>
+      <!-- 箭头右侧顶面 -->
+      <path d="M64 14 L70 8 L94 32 L88 32 Z" fill="url(#faceTop)" opacity="0.88"/>
+      <!-- 箭头正面镜面反光 -->
+      <path d="M40 32 L64 14 L88 32 Z" fill="url(#specular)" opacity="0.55"/>
+      <!-- 箭头边缘亮线 -->
+      <path d="M40 32 L64 14 L88 32" fill="none" stroke="#e0fbf5" stroke-width="1" opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- 箭头尖端金色光斑（点睛） -->
+      <circle cx="64" cy="14" r="3" fill="url(#apex)"/>
+      <circle cx="64" cy="14" r="1.5" fill="#fffbeb"/>
+    </g>
+
+    <!-- 箭头尖端外发光（在 dropShadow 之外，独立发光） -->
+    <circle cx="64" cy="14" r="10" fill="url(#apexGlow)"/>
+
+    <!-- ═══════════ 装饰粒子（克制） ═══════════ -->
+    <g filter="url(#softGlow)">
+      <circle cx="20" cy="68" r="1" fill="#67e8f9"/>
+      <circle cx="108" cy="80" r="0.8" fill="#a78bfa"/>
+      <circle cx="14" cy="92" r="0.6" fill="#fbbf24"/>
+      <circle cx="114" cy="58" r="0.9" fill="#ec4899"/>
+    </g>
+
+    <!-- 角落 HUD -->
+    <g stroke="#22d3ee" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
+      <path d="M8 18 L8 8 L18 8"/>
+      <path d="M120 18 L120 8 L110 8"/>
+    </g>
+    <g stroke="#fbbf24" stroke-width="1" opacity="0.45" fill="none" stroke-linecap="round">
+      <path d="M8 110 L8 120 L18 120"/>
+      <path d="M120 110 L120 120 L110 120"/>
+    </g>
+
+    <!-- 角落数据点 -->
+    <circle cx="11" cy="11" r="1" fill="#22d3ee" opacity="0.8"/>
+    <circle cx="117" cy="11" r="1" fill="#a855f7" opacity="0.8"/>
+    <circle cx="11" cy="117" r="1" fill="#fbbf24" opacity="0.7"/>
+    <circle cx="117" cy="117" r="1" fill="#ec4899" opacity="0.7"/>
   </g>
 
-  <!-- 横条高光带 -->
-  <rect x="16" y="22" width="96" height="3" rx="1.5" fill="url(#t-shine)"/>
-
-  <!-- 竖杆中线高光 -->
-  <rect x="59" y="41" width="10" height="44" rx="2" fill="#f0fdfa" opacity="0.12"/>
-
-  <!-- ── 小箭头（↑） ── -->
-  <path d="M55 105 L64 96 L73 105"
-        fill="none" stroke="url(#arrow)" stroke-width="4.5"
-        stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- 箭头小亮点 -->
-  <circle cx="64" cy="95" r="1.8" fill="#fef3c7" opacity="0.8"/>
-
-  <!-- ── 彩虹细边 ── -->
-  <rect x="4" y="4" width="120" height="120" rx="26" fill="none"
-        stroke="url(#border)" stroke-width="1.3" opacity="0.55"/>
+  <!-- ═══════════ 彩虹边框 ═══════════ -->
+  <rect x="2" y="2" width="124" height="124" rx="30" fill="none"
+        stroke="url(#rainbowBorder)" stroke-width="1.5" opacity="0.9"/>
+  <rect x="3.5" y="3.5" width="121" height="121" rx="28.5" fill="none"
+        stroke="#ffffff" stroke-width="0.6" opacity="0.22"/>
 </svg>

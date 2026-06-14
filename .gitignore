@@ -5,4 +5,5 @@ dist/
 *.zip
 .DS_Store
 server/config.json
+server/data/
 __pycache__/

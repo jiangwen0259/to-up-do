@@ -29,8 +29,17 @@ export interface SubTask {
   done: boolean;
 }
 
+export type AiModel = "DeepSeek-V4-Flash" | "MiniMax-M3" | "DeepSeek-V4-Pro";
+
+export const AI_MODELS: AiModel[] = ["DeepSeek-V4-Flash", "MiniMax-M3", "DeepSeek-V4-Pro"];
+
+export const AI_BASE_URL = "http://www.esnode.com";
+export const TAPD_SERVER_URL = "http://td.esnode.com";
+
 export interface AiConfig {
   enabled: boolean;
+  apiKey: string;
+  model: AiModel;
 }
 
 export interface TapdProject {
@@ -59,16 +68,16 @@ export interface ReminderConfig {
 }
 
 export interface AppSettings {
-  serverUrl: string;
   ai: AiConfig;
   tapd: TapdConfig;
   reminder: ReminderConfig;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  serverUrl: "http://localhost:8787",
   ai: {
     enabled: false,
+    apiKey: "",
+    model: "DeepSeek-V4-Flash",
   },
   tapd: {
     enabled: false,

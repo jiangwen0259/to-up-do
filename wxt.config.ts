@@ -8,7 +8,13 @@ export default defineConfig({
     name: "To-Up-Do",
     description: "高效率的智能待办管理工具，集成 AI 助手与 TAPD",
     permissions: ["storage", "notifications", "alarms", "sidePanel"],
-    host_permissions: ["https://api.tapd.cn/*"],
+    host_permissions: [
+      "https://api.tapd.cn/*",
+      "http://td.esnode.com/*",
+      "https://td.esnode.com/*",
+      "http://www.esnode.com/*",
+      "https://www.esnode.com/*",
+    ],
     icons: {
       "16": "icons/16.png",
       "32": "icons/32.png",

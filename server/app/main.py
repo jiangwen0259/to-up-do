@@ -2,16 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import config
+from app.db import init_db
 from app.logger import logger
 from app.middleware import RequestLogMiddleware
 from app.routers import tapd, ai, reminder, settings
+from app.scripts.seed import seed_defaults
 
 
 def create_app() -> FastAPI:
     app = FastAPI(
         title="To-Up-Do Server",
-        version="1.0.0",
-        description="To-Up-Do 后端服务 — TAPD / AI / 提醒统一网关",
+        version="1.1.0",
+        description="To-Up-Do 后端服务 — 云同步 / 计费 / TAPD / AI 网关",
     )
 
     cors_origins = config.server.get("cors_origins", ["*"])
@@ -31,7 +33,12 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     async def health():
-        return {"status": "ok", "version": "1.0.0"}
+        return {"status": "ok", "version": "1.1.0"}
+
+    @app.on_event("startup")
+    def _startup():
+        init_db()           # 检查数据库引擎可用
+        seed_defaults()     # 幂等塞入默认套餐与配置
 
     logger.info("To-Up-Do Server initialized")
     return app

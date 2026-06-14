@@ -1,24 +1,24 @@
 import { useState, useEffect } from "react";
-import type { AppSettings, AiConfig, TapdConfig, ReminderConfig, TapdProject } from "@/types";
-import { DEFAULT_SETTINGS } from "@/types";
+import type { AppSettings, AiConfig, TapdConfig, ReminderConfig, TapdProject, AiModel } from "@/types";
+import { DEFAULT_SETTINGS, AI_MODELS, AI_BASE_URL } from "@/types";
 import { db, getSettings, saveSettings } from "@/db";
 import { testTapdConnection } from "@/services/tapd";
+import { aiPing } from "@/services/ai";
 
 interface Props {
   onClose: () => void;
 }
 
 export default function Settings({ onClose }: Props) {
-  const [tab, setTab] = useState<"server" | "tapd" | "reminder">("server");
-  const [serverUrl, setServerUrl] = useState(DEFAULT_SETTINGS.serverUrl);
+  const [tab, setTab] = useState<"model" | "tapd" | "reminder">("model");
   const [ai, setAi] = useState<AiConfig>(DEFAULT_SETTINGS.ai);
   const [tapd, setTapd] = useState<TapdConfig>(DEFAULT_SETTINGS.tapd);
   const [reminder, setReminder] = useState<ReminderConfig>(DEFAULT_SETTINGS.reminder);
   const [saved, setSaved] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     getSettings().then((s) => {
-      setServerUrl(s.serverUrl);
       setAi(s.ai);
       setTapd(s.tapd);
       setReminder(s.reminder);
@@ -26,7 +26,6 @@ export default function Settings({ onClose }: Props) {
   }, []);
 
   async function handleSave() {
-    await saveSettings("serverUrl", serverUrl);
     await saveSettings("ai", ai);
     await saveSettings("tapd", tapd);
     await saveSettings("reminder", reminder);
@@ -35,7 +34,7 @@ export default function Settings({ onClose }: Props) {
   }
 
   const tabs = [
-    { key: "server" as const, label: "服务器", icon: "M5 12h14M12 5l7 7-7 7" },
+    { key: "model" as const, label: "模型", icon: "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" },
     { key: "tapd" as const, label: "TAPD", icon: "M4 4h16v16H4zM9 9h6m-6 4h6" },
     { key: "reminder" as const, label: "提醒", icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" },
   ];
@@ -47,19 +46,8 @@ export default function Settings({ onClose }: Props) {
 
   return (
     <div className="bg-slate-800/80 rounded-xl border border-slate-700/60 shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-700 flex items-center justify-between">
-        <h2 className="text-base font-bold text-slate-200 flex items-center gap-2">
-          <span className="w-1 h-4 rounded-full bg-teal-500" />
-          设置
-        </h2>
-        <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 hover:bg-slate-700 transition-colors">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
-        </button>
-      </div>
-
       {/* Tabs */}
-      <div className="px-5 pt-4">
+      <div className="px-5 pt-4 pb-0">
         <div className="flex gap-1 bg-slate-700/50 rounded-lg p-1">
           {tabs.map((t) => (
             <button
@@ -82,60 +70,85 @@ export default function Settings({ onClose }: Props) {
 
       {/* Content */}
       <div className="p-5 space-y-4">
-        {tab === "server" && (
+        {tab === "model" && (
           <>
-            <div>
-              <label className={labelClass}>后端服务地址</label>
+            {/* Enable */}
+            <label className="flex items-center gap-2.5 cursor-pointer">
               <input
-                type="text"
-                value={serverUrl}
-                onChange={(e) => setServerUrl(e.target.value)}
-                className={inputClass}
-                placeholder="http://localhost:8787"
+                type="checkbox"
+                checked={ai.enabled}
+                onChange={(e) => setAi({ ...ai, enabled: e.target.checked })}
+                className="w-4 h-4 rounded accent-teal-500"
+              />
+              <span className="text-[13px] font-medium text-slate-300">启用 AI 助手</span>
+            </label>
+
+            {/* Endpoint info */}
+            <div className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/40">
+              <div className="text-[10px] tracking-[0.18em] text-slate-500 uppercase font-medium mb-1">Endpoint</div>
+              <div className="text-[12px] text-slate-300 font-mono break-all">{AI_BASE_URL}/v1/messages</div>
+              <div className="text-[10px] text-slate-500 mt-1">协议: Anthropic Messages API</div>
+            </div>
+
+            {/* Model picker */}
+            <div>
+              <label className={labelClass}>模型</label>
+              <div className="grid grid-cols-1 gap-1.5">
+                {AI_MODELS.map((m) => {
+                  const active = ai.model === m;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setAi({ ...ai, model: m })}
+                      className={`relative h-9 px-3 rounded-lg text-[12px] font-medium flex items-center justify-between transition-all border ${
+                        active
+                          ? "border-teal-400/50 bg-gradient-to-r from-teal-500/15 to-cyan-500/15 text-teal-200 shadow-[0_0_0_1px_rgba(45,212,191,0.15)]"
+                          : "border-slate-600/60 bg-slate-700/40 text-slate-300 hover:border-teal-500/30 hover:bg-slate-700/70"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-teal-400" : "bg-slate-500"}`} />
+                        {m}
+                      </span>
+                      {active && (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12.5l4.5 4.5L19 7.5" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* API Key */}
+            <div>
+              <label className={labelClass}>API Key</label>
+              <input
+                type="password"
+                value={ai.apiKey}
+                onChange={(e) => setAi({ ...ai, apiKey: e.target.value })}
+                className={`${inputClass} font-mono`}
+                placeholder="sk-ant-..."
               />
             </div>
 
-            <div className="bg-slate-700/40 rounded-lg p-3.5 space-y-3">
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={ai.enabled}
-                  onChange={(e) => setAi({ ...ai, enabled: e.target.checked })}
-                  className="w-4 h-4 rounded accent-teal-500"
-                />
-                <span className="text-[13px] font-medium text-slate-300">启用 AI 助手</span>
-              </label>
-
-              <button
-                onClick={async () => {
-                  try {
-                    const res = await fetch(`${serverUrl}/api/settings/test-ai`, { method: "POST" });
-                    const data = await res.json();
-                    alert(data.ok ? "AI 服务连接成功" : `AI 服务连接失败: ${data.message}`);
-                  } catch (e: any) {
-                    alert(`请求失败: ${e.message}`);
-                  }
-                }}
-                disabled={!ai.enabled}
-                className={`${btnTest} bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 disabled:opacity-40 disabled:cursor-not-allowed`}
-              >
-                测试 AI 连接
-              </button>
-            </div>
-
+            {/* Test */}
             <button
               onClick={async () => {
-                try {
-                  const res = await fetch(`${serverUrl}/health`);
-                  const data = await res.json();
-                  alert(`连接成功！服务版本: ${data.version}`);
-                } catch (e: any) {
-                  alert(`连接失败: ${e.message}`);
-                }
+                if (!ai.enabled) { alert("请先启用 AI 助手"); return; }
+                if (!ai.apiKey) { alert("请填写 API Key"); return; }
+                setTesting(true);
+                await saveSettings("ai", ai);
+                const res = await aiPing();
+                setTesting(false);
+                alert(res.ok ? `✅ ${res.message}` : `❌ ${res.message}`);
               }}
-              className={`${btnTest} bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20`}
+              disabled={testing}
+              className={`${btnTest} bg-violet-500/10 text-violet-400 hover:bg-violet-500/20 disabled:opacity-50`}
             >
-              测试后端连接
+              {testing ? "测试中..." : "测试模型连接"}
             </button>
           </>
         )}
@@ -192,12 +205,6 @@ export default function Settings({ onClose }: Props) {
               <div className="text-[11px] text-slate-400 font-medium">添加新项目</div>
               <input
                 type="text"
-                value={tapd.projects.length > 0 ? "" : ""}
-                onChange={(e) => {
-                  const name = e.target.value;
-                  const wsId = e.target.value;
-                  if (!name || !wsId) return;
-                }}
                 placeholder="项目名称"
                 className={`${inputClass} text-[12px]`}
                 id="new-project-name"
@@ -261,7 +268,7 @@ export default function Settings({ onClose }: Props) {
             </button>
 
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              TAPD 凭证（Token/OAuth）在后端 config.json 中配置，插件端不存储敏感信息。
+              TAPD 凭证（Token/OAuth）在后端 config.json 中配置，插件端不存储敏感信息。后端服务: td.esnode.com
             </p>
           </>
         )}

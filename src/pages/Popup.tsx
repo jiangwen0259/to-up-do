@@ -9,9 +9,10 @@ import TodoForm from "@/components/TodoForm";
 import Settings from "@/components/Settings";
 import AiChat from "@/components/AiChat";
 import type { Todo, TodoStatus, Priority } from "@/types";
+import { isOverdue } from "@/utils/date";
 
 type View = "list" | "add" | "edit" | "settings" | "assistant";
-type FilterKey = "all" | "todo" | "in_progress" | "done";
+type FilterKey = "all" | "todo" | "in_progress" | "done" | "overdue";
 type SourceKey = "all" | "manual" | "tapd";
 
 const SOURCE_TABS: { key: SourceKey; label: string }[] = [
@@ -59,6 +60,17 @@ const FILTER_CONFIG: { key: FilterKey; label: string; icon: JSX.Element }[] = [
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9" />
         <path d="M8 12.5l2.5 2.5L16 9.5" />
+      </svg>
+    ),
+  },
+  {
+    key: "overdue",
+    label: "逾期",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v6" />
+        <circle cx="12" cy="16.5" r="0.6" fill="currentColor" />
       </svg>
     ),
   },
@@ -182,6 +194,7 @@ export default function Popup() {
     todo: todosBySource.filter((t) => t.status === "todo").length,
     in_progress: todosBySource.filter((t) => t.status === "in_progress").length,
     done: todosBySource.filter((t) => t.status === "done").length,
+    overdue: todosBySource.filter((t) => t.status !== "done" && isOverdue(t.dueDate)).length,
   };
 
   const currentFilter = FILTER_CONFIG.find((f) => f.key === state.filter.status) || FILTER_CONFIG[0];
@@ -189,7 +202,11 @@ export default function Popup() {
 
   const filteredTodos = state.todos.filter((t) => {
     if (state.filter.source !== "all" && t.source !== state.filter.source) return false;
-    if (state.filter.status !== "all" && t.status !== state.filter.status) return false;
+    if (state.filter.status === "overdue") {
+      if (t.status === "done" || !isOverdue(t.dueDate)) return false;
+    } else if (state.filter.status !== "all" && t.status !== state.filter.status) {
+      return false;
+    }
     if (state.filter.search) {
       const q = state.filter.search.toLowerCase();
       if (!t.title.toLowerCase().includes(q) && !t.description.toLowerCase().includes(q)) return false;
@@ -216,10 +233,51 @@ export default function Popup() {
             className="flex items-center gap-2 w-full group"
             title="返回首页"
           >
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-[0_0_0_1px_rgba(45,212,191,0.25),0_4px_12px_-2px_rgba(13,148,136,0.4)]">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12.5l4.5 4.5L19 7.5" />
+            <div className="relative w-8 h-8 rounded-[10px] overflow-hidden flex items-center justify-center flex-shrink-0 bg-[radial-gradient(circle_at_30%_20%,#1a2540,#0a1124_50%,#020410)] shadow-[0_0_0_1px_rgba(34,211,238,0.35),0_6px_16px_-4px_rgba(13,148,136,0.55),inset_0_1px_0_rgba(255,255,255,0.12)]">
+              {/* Holo glow */}
+              <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_55%,rgba(34,211,238,0.4),transparent_65%)]" />
+              <span className="absolute inset-0 bg-[radial-gradient(circle_at_85%_85%,rgba(168,85,247,0.28),transparent_55%)]" />
+              {/* Unified T+arrow apex (3D isometric) */}
+              <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="relative">
+                <defs>
+                  <linearGradient id="bt-top" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#e0fbf5" />
+                    <stop offset="100%" stopColor="#2dd4bf" />
+                  </linearGradient>
+                  <linearGradient id="bt-front" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#2dd4bf" />
+                    <stop offset="100%" stopColor="#0d9488" />
+                  </linearGradient>
+                  <linearGradient id="bt-side" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#0e7490" />
+                    <stop offset="100%" stopColor="#155e75" />
+                  </linearGradient>
+                  <linearGradient id="bt-apex" x1="50%" y1="0%" x2="50%" y2="100%">
+                    <stop offset="0%" stopColor="#fef9c3" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                </defs>
+                {/* Arrow apex (top triangle, fused with crossbar) */}
+                <path d="M16 4 L17.5 2.5 L23.5 8 L22 9.5 Z" fill="url(#bt-side)" opacity="0.9" />
+                <path d="M9 9.5 L16 4 L23.5 8 L22 9.5 Z" fill="url(#bt-top)" />
+                <path d="M9 9.5 L16 4 L23 9.5 Z" fill="url(#bt-front)" />
+                <circle cx="16" cy="4" r="1.2" fill="url(#bt-apex)" />
+                {/* T crossbar */}
+                <path d="M27 9.5 L28.5 8 L28.5 13.5 L27 15 Z" fill="url(#bt-side)" />
+                <path d="M5 15 L6.5 13.5 L28.5 13.5 L27 15 Z" fill="url(#bt-side)" opacity="0.85" />
+                <rect x="5" y="9.5" width="22" height="5.5" rx="0.8" fill="url(#bt-front)" />
+                <path d="M5 9.5 L6.5 8 L28.5 8 L27 9.5 Z" fill="url(#bt-top)" />
+                <rect x="5" y="9.5" width="22" height="0.8" fill="#ffffff" opacity="0.5" />
+                {/* T stem */}
+                <path d="M19 15 L20.5 13.5 L20.5 27 L19 28.5 Z" fill="url(#bt-side)" />
+                <rect x="13" y="15" width="6" height="13.5" rx="0.6" fill="url(#bt-front)" />
+                <rect x="13.5" y="15.5" width="1" height="12.5" fill="#ccfbf1" opacity="0.6" />
+                <path d="M13 28.5 L14.5 27 L20.5 27 L19 28.5 Z" fill="url(#bt-side)" opacity="0.7" />
               </svg>
+              {/* Apex glow */}
+              <span className="absolute top-[3px] left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-yellow-300/60 blur-[2px]" />
+              {/* Glass border */}
+              <span className="absolute inset-0 rounded-[10px] pointer-events-none border border-white/10" />
             </div>
             <div className="text-left leading-tight min-w-0">
               <h1 className="logo-text text-[14px] leading-none">To-Up-Do</h1>

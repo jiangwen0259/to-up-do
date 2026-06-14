@@ -1,6 +1,6 @@
 {
   "name": "to-up-do",
-  "version": "1.0.18",
+  "version": "1.0.30",
   "description": "一款高效率的智能待办管理工具，集成 AI 助手与 TAPD 项目管理，让待办不再遗漏。",
   "type": "module",
   "scripts": {

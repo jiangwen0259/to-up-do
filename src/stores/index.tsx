@@ -7,7 +7,7 @@ export interface AppState {
   settings: AppSettings;
   loading: boolean;
   filter: {
-    status: "all" | "todo" | "in_progress" | "done";
+    status: "all" | "todo" | "in_progress" | "done" | "overdue";
     source: "all" | "manual" | "tapd";
     search: string;
   };

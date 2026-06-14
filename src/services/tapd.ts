@@ -1,6 +1,6 @@
-import type { Todo, TapdWorkItemType } from "@/types";
+import { TAPD_SERVER_URL, type Todo, type TapdWorkItemType } from "@/types";
 
-const API_BASE = "http://localhost:8787/api/tapd";
+const API_BASE = `${TAPD_SERVER_URL}/api/tapd`;
 
 interface TapdTaskItem {
   id: string;
